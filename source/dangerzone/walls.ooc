@@ -33,8 +33,6 @@ Walls: class extends Entity {
     }
 
     createSegment: func (p1, p2: Vec2) {
-        level game logger info("Creating segment from %s to %s", p1 _, p2 _)
-
         shape := CpSegmentShape new(level space getStaticBody(), cpv(p1), cpv(p2), 1.0)
         shape setFriction(0.9)
         level space addShape(shape)

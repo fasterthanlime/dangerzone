@@ -40,17 +40,39 @@ Ball: class extends Entity {
     }
 
     update: func {
+
         if (snapped) {
             pos := level dye input getMousePos()
+            size := level dye size toVec2()
+
+            diameter := radius * 2.0
+            if (diameter >= size x || diameter >= size y) {
+                // we're as big as we're gonna get
+                unsnap()
+                return
+            }
+
+            if (pos x < radius) {
+                pos x = radius
+            }
+            if (pos x + radius >= size y) {
+                pos x = size x - radius
+            }
+            if (pos y < radius) {
+                pos y = radius
+            }
+            if (pos y + radius >= size y) {
+                pos y = size y - radius
+            }
+
             body setPos(cpv(pos))
             body setVel(cpv(0, 0))
             radius += 1.0
+            updateShape()
         }
 
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
-
-        updateShape()
 
         sprite sync(body)
     }
