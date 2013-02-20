@@ -28,6 +28,10 @@ Ball: class extends Entity {
 
     snapped := true
 
+    selfCount := 0
+
+    selfHandler: static CpCollisionHandler
+
     init: func (.level, .pos) {
         super(level)
 
@@ -47,15 +51,21 @@ Ball: class extends Entity {
 
             diameter := radius * 2.0
             if (diameter >= size x || diameter >= size y) {
+                "As big as we're going to get." println()
+
                 // we're as big as we're gonna get
                 unsnap()
-                return
+            }
+
+            if (selfCount > 0) {
+                // we've hit something!
+                unsnap()
             }
 
             if (pos x < radius) {
                 pos x = radius
             }
-            if (pos x + radius >= size y) {
+            if (pos x + radius >= size x) {
                 pos x = size x - radius
             }
             if (pos y < radius) {
@@ -67,7 +77,7 @@ Ball: class extends Entity {
 
             body setPos(cpv(pos))
             body setVel(cpv(0, 0))
-            radius += 1.0
+            radius += 1.2
             updateShape()
         }
 
@@ -86,6 +96,16 @@ Ball: class extends Entity {
         level space addBody(body)
 
         updateShape()
+
+        initHandlers()
+    }
+
+    initHandlers: func {
+        if (!selfHandler) {
+            selfHandler = SelfHandler new()
+            level space addCollisionHandler(CollisionTypes HEROES,
+                CollisionTypes HEROES, selfHandler)
+        }
     }
     
     updateShape: func {
@@ -101,6 +121,7 @@ Ball: class extends Entity {
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
         shape setFriction(0.9)
+        shape setCollisionType(CollisionTypes HEROES)
         level space addShape(shape)
     }
 
@@ -110,6 +131,31 @@ Ball: class extends Entity {
 
     unsnap: func {
         snapped = false
+    }
+
+}
+
+SelfHandler: class extends CpCollisionHandler {
+
+    begin: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
+        delta(arbiter, 1)
+
+        true
+    }
+
+    separate: func (arbiter: CpArbiter, space: CpSpace) {
+        delta(arbiter, -1)
+    }
+
+    delta: func (arbiter: CpArbiter, delta: Int) {
+        shape1, shape2: CpShape
+        arbiter getShapes(shape1&, shape2&) 
+
+        ball1 := shape1 getUserData() as Ball
+        ball2 := shape2 getUserData() as Ball
+
+        ball1 selfCount += delta
+        ball2 selfCount += delta
     }
 
 }

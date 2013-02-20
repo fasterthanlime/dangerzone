@@ -92,3 +92,8 @@ Entity: class {
 
 }
 
+CollisionTypes: enum from Int {
+    HEROES
+    ENEMIES
+}
+
