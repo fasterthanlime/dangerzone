@@ -24,10 +24,10 @@ Ball: class extends Entity {
     radius := 64.0
     spriteSide := 512.0
 
-    init: func (.level) {
+    init: func (.level, .pos) {
         super(level)
 
-        pos = vec2(200, 500)
+        this pos = pos clone()
 
         sprite = GlSprite new("assets/png/ball-happy.png")
         level group add(sprite)

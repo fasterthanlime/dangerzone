@@ -4,7 +4,7 @@ use chipmunk
 import chipmunk
 
 use dye
-import dye/[core, math]
+import dye/[core, math, input]
 
 // sdk stuff
 import structs/[ArrayList, HashMap]
@@ -21,10 +21,14 @@ Level: class {
 
     group: GlGroup
 
+    dye: DyeContext { get { game dye } }
+    input: Input { get { game dye input } }
+
     init: func (=game) {
         group = GlGroup new()
 
         initPhysx()
+        initEvents()
     }
 
     initPhysx: func {
@@ -32,6 +36,18 @@ Level: class {
 
         gravity := cpv(0, -1800)
         space setGravity(gravity)
+    }
+
+    initEvents: func {
+        input onMousePress(MouseButton LEFT, |mp|
+            spawnBall()
+        )
+    }
+
+    spawnBall: func {
+        pos := game dye input getMousePos()
+        ball := Ball new(this, pos)
+        add(ball)
     }
 
     add: func (e: Entity) {
