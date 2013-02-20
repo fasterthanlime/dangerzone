@@ -21,7 +21,7 @@ Ball: class extends Entity {
     shape: CpShape
     body: CpBody
 
-    radius := 64.0
+    radius := 1.0
     spriteSide := 512.0
 
     mass := 10.0
@@ -43,7 +43,8 @@ Ball: class extends Entity {
         if (snapped) {
             pos := level dye input getMousePos()
             body setPos(cpv(pos))
-            radius += 0.5
+            body setVel(cpv(0, 0))
+            radius += 1.0
         }
 
         scale := radius * 2.0 / spriteSide
@@ -77,11 +78,16 @@ Ball: class extends Entity {
 
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
+        shape setFriction(0.9)
         level space addShape(shape)
     }
 
     getMoment: func -> Float {
         cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
+    }
+
+    unsnap: func {
+        snapped = false
     }
 
 }

@@ -24,6 +24,8 @@ Level: class {
     dye: DyeContext { get { game dye } }
     input: Input { get { game dye input } }
 
+    lastBall: Ball
+
     init: func (=game) {
         group = GlGroup new()
 
@@ -44,12 +46,23 @@ Level: class {
         input onMousePress(MouseButton LEFT, |mp|
             spawnBall()
         )
+
+        input onMouseRelease(MouseButton LEFT, |mr|
+            releaseBall()
+        )
     }
 
     spawnBall: func {
         pos := game dye input getMousePos()
         ball := Ball new(this, pos)
         add(ball)
+        lastBall = ball
+    }
+
+    releaseBall: func {
+        if (!lastBall) { return }
+
+        lastBall unsnap()
     }
 
     add: func (e: Entity) {
