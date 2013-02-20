@@ -24,6 +24,10 @@ Ball: class extends Entity {
     radius := 64.0
     spriteSide := 512.0
 
+    mass := 10.0
+
+    snapped := true
+
     init: func (.level, .pos) {
         super(level)
 
@@ -36,24 +40,49 @@ Ball: class extends Entity {
     }
 
     update: func {
+        if (snapped) {
+            pos := level dye input getMousePos()
+            body setPos(cpv(pos))
+            radius += 0.5
+        }
+
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
+
+        updateShape()
 
         sprite sync(body)
     }
 
     initPhysx: func {
         // main body
-        mass := 10.0
         moment := cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
 
         body = CpBody new(mass, moment)
         body setPos(cpv(pos))
         level space addBody(body)
 
+        updateShape()
+    }
+    
+    updateShape: func {
+        moment := getMoment()
+        body setMoment(moment)
+
+        if (shape) {
+            level space removeShape(shape)
+            shape free()
+            shape = null
+        }
+
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
         level space addShape(shape)
     }
 
+    getMoment: func -> Float {
+        cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
+    }
+
 }
+
