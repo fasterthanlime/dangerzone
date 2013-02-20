@@ -36,7 +36,7 @@ Ball: class extends Entity {
     }
 
     update: func {
-        scale := radius / spriteSide
+        scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
 
         sprite sync(body)
@@ -45,7 +45,7 @@ Ball: class extends Entity {
     initPhysx: func {
         // main body
         mass := 10.0
-        moment := cpMomentForCircle(mass, 0, radius, cpv(0, 0))
+        moment := cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
 
         body = CpBody new(mass, moment)
         body setPos(cpv(pos))

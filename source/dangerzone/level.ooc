@@ -10,7 +10,7 @@ import dye/[core, math, input]
 import structs/[ArrayList, HashMap]
 
 // our stuff
-import dangerzone/[game, ball]
+import dangerzone/[game, ball, walls]
 
 Level: class {
 
@@ -29,6 +29,8 @@ Level: class {
 
         initPhysx()
         initEvents()
+
+        add(Walls new(this))
     }
 
     initPhysx: func {
