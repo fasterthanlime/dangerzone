@@ -1,0 +1,7 @@
+Name: Danger Zone
+Version: 0.1
+Description: A reddit super fill up clone!
+Requires: dye, gnaar, chipmunk, yaml
+SourcePath: source
+Main: dangerzone.ooc
+
