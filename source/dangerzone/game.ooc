@@ -7,13 +7,16 @@ use dye
 import dye/[core, input, primitives, sprite, math, loop]
 
 // our stuff
-import dangerzone/[logging]
+import dangerzone/[logging, level, ball]
 
 Game: class {
 
     logger: Logger
     dye: DyeContext
+
     loop: FixedLoop
+
+    level: Level
 
     init: func {
         Logging setup()
@@ -26,10 +29,23 @@ Game: class {
 
         loop = FixedLoop new(dye, 60)
 
+        level = Level new(this)
+        dye add(level group)
+
+        level add(Ball new(level))
+
         dye setClearColor(Color white())
 
+        counter := 0
+
         loop run(||
-            "FPS = %.2f" printfln(loop fps)
+            level update()
+
+            counter += 1
+            if (counter >= 30) {
+                counter = 0
+                "FPS = %.2f" printfln(loop fps)
+            }
         )
 
         dye quit()
