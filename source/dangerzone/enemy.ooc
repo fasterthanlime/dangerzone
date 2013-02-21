@@ -25,10 +25,11 @@ Enemy: class extends Entity {
     spriteSide := 32.0
 
     mass := 0.01
+    speed: Float
 
     enemyHandler: static CpCollisionHandler
 
-    init: func (.level, .pos, vel: Vec2) {
+    init: func (.level, .pos, vel: Vec2, =speed) {
         super(level)
 
         this pos = pos clone()
@@ -36,12 +37,19 @@ Enemy: class extends Entity {
         sprite = GlSprite new("assets/png/enemy.png")
         level group add(sprite)
 
+        vel = vel normalized() mul(speed)
         initPhysx(vel)
     }
 
     update: func {
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
+
+        // try to attain constant velocity
+        vel := vec2(body getVel())
+        currentSpeed := vel norm()
+        newNorm := currentSpeed * 0.9 + speed * 0.1
+        body setVel(cpv(vel normalized() mul(newNorm)))
 
         sprite sync(body)
     }

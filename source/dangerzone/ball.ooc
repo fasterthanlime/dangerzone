@@ -133,7 +133,10 @@ Ball: class extends Entity {
     }
 
     unsnap: func {
+        if (!snapped) { return }
+
         snapped = false
+        level balls -= 1
     }
 
 }

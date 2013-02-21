@@ -27,6 +27,9 @@ Level: class {
 
     lastBall: Ball
 
+    lives := 2
+    balls := 20
+
     init: func (=game) {
         group = GlGroup new()
 
@@ -45,10 +48,10 @@ Level: class {
 
             velX := Random randRange(-100, 100)
             velY := Random randRange(-100, 100)
-            vel := vec2(velX, velY) normalized() mul(256.0)
+            vel := vec2(velX, velY)
 
             pos := vec2(x, y)
-            add(Enemy new(this, pos, vel))
+            add(Enemy new(this, pos, vel, 256.0))
         }
     }
 
