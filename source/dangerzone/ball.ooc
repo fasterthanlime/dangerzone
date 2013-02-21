@@ -9,6 +9,9 @@ import gnaar/[utils]
 use chipmunk
 import chipmunk
 
+// sdk stuff
+import math
+
 // our stuff
 import dangerzone/[level]
 
@@ -42,6 +45,10 @@ Ball: class extends Entity {
         level group add(sprite)
 
         initPhysx()
+    }
+
+    area: func -> Float {
+        PI * radius * radius
     }
 
     update: func -> Bool {

@@ -29,6 +29,7 @@ Level: class {
 
     lives := 2
     balls := 20
+    filled := 0.0
 
     init: func (=game) {
         group = GlGroup new()
@@ -98,6 +99,19 @@ Level: class {
                 e destroy()
             }
         }
+
+        // update filledness
+        terrainArea := (dye width * dye height) as Float
+        ballArea := 0.0
+
+        for (e in entities) {
+            match e {
+                case b: Ball =>
+                    ballArea += b area()             
+            }
+        }
+
+        filled = ballArea * 100.0 / terrainArea
     }
 
 }

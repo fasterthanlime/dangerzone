@@ -44,8 +44,8 @@ Game: class {
             counter += 1
             if (counter >= 30) {
                 counter = 0
-                "FPS = %.2f | lives = %d | balls = %d" \
-                    printfln(loop fps, level lives, level balls)
+                "FPS = %.2f | lives = %d | balls = %d | filled = %.2f" \
+                    printfln(loop fps, level lives, level balls, level filled)
             }
         )
 
