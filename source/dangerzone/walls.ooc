@@ -35,6 +35,7 @@ Walls: class extends Entity {
     createSegment: func (p1, p2: Vec2) {
         shape := CpSegmentShape new(level space getStaticBody(), cpv(p1), cpv(p2), 1.0)
         shape setFriction(0.9)
+        shape setElasticity(0.9)
         level space addShape(shape)
     }
 

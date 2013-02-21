@@ -10,9 +10,9 @@ use chipmunk
 import chipmunk
 
 // our stuff
-import dangerzone/[level]
+import dangerzone/[level, ball]
 
-Ball: class extends Entity {
+Enemy: class extends Entity {
 
     pos: Vec2
 
@@ -21,80 +21,37 @@ Ball: class extends Entity {
     shape: CpShape
     body: CpBody
 
-    radius := 1.0
-    spriteSide := 512.0
+    radius := 8.0
+    spriteSide := 32.0
 
-    mass := 10.0
+    mass := 0.01
 
-    snapped := true
+    enemyHandler: static CpCollisionHandler
 
-    selfCount := 0
-
-    selfHandler: static CpCollisionHandler
-
-    init: func (.level, .pos) {
+    init: func (.level, .pos, vel: Vec2) {
         super(level)
 
         this pos = pos clone()
 
-        sprite = GlSprite new("assets/png/ball-happy.png")
+        sprite = GlSprite new("assets/png/enemy.png")
         level group add(sprite)
 
-        initPhysx()
+        initPhysx(vel)
     }
 
     update: func {
-
-        if (snapped) {
-            pos := level dye input getMousePos()
-            size := level dye size toVec2()
-
-            diameter := radius * 2.0
-            if (diameter >= size x || diameter >= size y) {
-                "As big as we're going to get." println()
-
-                // we're as big as we're gonna get
-                unsnap()
-            }
-
-            if (selfCount > 0) {
-                // we've hit something!
-                unsnap()
-            }
-
-            if (pos x < radius) {
-                pos x = radius
-            }
-            if (pos x + radius >= size x) {
-                pos x = size x - radius
-            }
-            if (pos y < radius) {
-                pos y = radius
-            }
-            if (pos y + radius >= size y) {
-                pos y = size y - radius
-            }
-
-            body setPos(cpv(pos))
-            body setVel(cpv(0, 0))
-            radius += 1.2
-            updateShape()
-        }
-
-        // local gravity
-        body setForce(cpv(0, -1800))
-
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
 
         sprite sync(body)
     }
 
-    initPhysx: func {
+    initPhysx: func (vel: Vec2) {
         moment := cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
 
         body = CpBody new(mass, moment)
         body setPos(cpv(pos))
+        body setVel(cpv(vel))
         level space addBody(body)
 
         updateShape()
@@ -103,11 +60,13 @@ Ball: class extends Entity {
     }
 
     initHandlers: func {
-        if (!selfHandler) {
-            selfHandler = SelfHandler new()
+        /*
+        if (!enemyHandler) {
+            enemyHandler = EnemyHandler new()
             level space addCollisionHandler(CollisionTypes HEROES,
-                CollisionTypes HEROES, selfHandler)
+                CollisionTypes HEROES, enemyHandler)
         }
+        */
     }
     
     updateShape: func {
@@ -122,7 +81,7 @@ Ball: class extends Entity {
 
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
-        shape setFriction(0.9)
+        shape setFriction(0.0)
         shape setElasticity(0.9)
         shape setCollisionType(CollisionTypes HEROES)
         level space addShape(shape)
@@ -132,22 +91,17 @@ Ball: class extends Entity {
         cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
     }
 
-    unsnap: func {
-        snapped = false
-    }
-
 }
 
-SelfHandler: class extends CpCollisionHandler {
+EnemyHandler: class extends CpCollisionHandler {
 
     begin: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        delta(arbiter, 1)
-
+        // TODO
         true
     }
 
     separate: func (arbiter: CpArbiter, space: CpSpace) {
-        delta(arbiter, -1)
+        // TODO
     }
 
     delta: func (arbiter: CpArbiter, delta: Int) {
@@ -162,4 +116,3 @@ SelfHandler: class extends CpCollisionHandler {
     }
 
 }
-

@@ -8,9 +8,10 @@ import dye/[core, math, input]
 
 // sdk stuff
 import structs/[ArrayList, HashMap]
+import math/Random
 
 // our stuff
-import dangerzone/[game, ball, walls]
+import dangerzone/[game, ball, walls, enemy]
 
 Level: class {
 
@@ -33,13 +34,29 @@ Level: class {
         initEvents()
 
         add(Walls new(this))
+        spawnEnemies(3)
+    }
+
+    spawnEnemies: func (count: Int) {
+        for (i in 0..count) {
+            padding := 10
+            x := Random randRange(padding, dye width  - padding)
+            y := Random randRange(padding, dye height - padding)
+
+            velX := Random randRange(-100, 100)
+            velY := Random randRange(-100, 100)
+            vel := vec2(velX, velY) normalized() mul(256.0)
+
+            pos := vec2(x, y)
+            add(Enemy new(this, pos, vel))
+        }
     }
 
     initPhysx: func {
         space = CpSpace new()
 
-        gravity := cpv(0, -1800)
-        space setGravity(gravity)
+        //gravity := cpv(0, -1800)
+        //space setGravity(gravity)
     }
 
     initEvents: func {
