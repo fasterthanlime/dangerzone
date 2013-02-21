@@ -99,6 +99,12 @@ Enemy: class extends Entity {
         cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
     }
 
+    destroy: func {
+        level group remove(sprite)
+        level space removeShape(shape)
+        level space removeBody(body)
+    }
+
 }
 
 EnemyHandler: class extends CpCollisionHandler {

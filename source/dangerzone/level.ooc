@@ -31,14 +31,16 @@ Level: class {
     balls := 20
     filled := 0.0
 
+    currentLevel := 0
+
     init: func (=game) {
         group = GlGroup new()
 
         initPhysx()
         initEvents()
 
-        add(Walls new(this))
-        spawnEnemies(3)
+        Walls new(this)
+        loadLevel(1)
     }
 
     spawnEnemies: func (count: Int) {
@@ -112,6 +114,38 @@ Level: class {
         }
 
         filled = ballArea * 100.0 / terrainArea
+
+        winloss()
+    }
+
+    winloss: func {
+        if (lost?()) {
+            loadLevel(1)
+        }
+
+        if (won?()) {
+            loadLevel(currentLevel + 1)
+        }
+    }
+
+    lost?: func -> Bool {
+        lives == 0
+    }
+
+    won?: func -> Bool {
+        filled >= 66.0
+    }
+
+    loadLevel: func (=currentLevel) {
+        reset()
+
+        spawnEnemies(currentLevel + 1)
+    }
+
+    reset: func {
+        while (!entities empty?()) {
+            entities removeAt(0) destroy()
+        }
     }
 
 }
