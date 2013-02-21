@@ -27,6 +27,7 @@ Ball: class extends Entity {
     mass := 10.0
 
     snapped := true
+    dead := false
 
     selfCount := 0
 
@@ -43,7 +44,10 @@ Ball: class extends Entity {
         initPhysx()
     }
 
-    update: func {
+    update: func -> Bool {
+        if (dead) {
+            return false
+        }
 
         if (snapped) {
             pos := level dye input getMousePos()
@@ -51,8 +55,6 @@ Ball: class extends Entity {
 
             diameter := radius * 2.0
             if (diameter >= size x || diameter >= size y) {
-                "As big as we're going to get." println()
-
                 // we're as big as we're gonna get
                 unsnap()
             }
@@ -88,6 +90,14 @@ Ball: class extends Entity {
         sprite scale set!(scale, scale)
 
         sprite sync(body)
+
+        true
+    }
+
+    destroy: func {
+        level group remove(sprite)
+        level space removeShape(shape)
+        level space removeBody(body)
     }
 
     initPhysx: func {
@@ -137,6 +147,15 @@ Ball: class extends Entity {
 
         snapped = false
         level balls -= 1
+    }
+
+    harm: func {
+        if (dead) { return }
+
+        if (snapped) {
+            dead = true
+            level lives -= 1
+        }
     }
 
 }

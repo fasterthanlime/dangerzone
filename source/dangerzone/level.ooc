@@ -90,8 +90,13 @@ Level: class {
         timeStep: CpFloat = 1.0 / game loop fpsGoal
         space step(timeStep)
 
-        for (e in entities) {
-            e update()
+        iter := entities iterator()
+        while (iter hasNext?()) {
+            e := iter next()
+            if (!e update()) {
+                iter remove()
+                e destroy()
+            }
         }
     }
 
@@ -104,7 +109,11 @@ Entity: class {
     init: func (=level) {
     }
 
-    update: func {
+    update: func -> Bool {
+        true
+    }
+
+    destroy: func {
     }
 
 }

@@ -41,7 +41,7 @@ Enemy: class extends Entity {
         initPhysx(vel)
     }
 
-    update: func {
+    update: func -> Bool {
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
 
@@ -52,6 +52,8 @@ Enemy: class extends Entity {
         body setVel(cpv(vel normalized() mul(newNorm)))
 
         sprite sync(body)
+
+        true
     }
 
     initPhysx: func (vel: Vec2) {
@@ -102,8 +104,14 @@ Enemy: class extends Entity {
 EnemyHandler: class extends CpCollisionHandler {
 
     begin: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        // TODO
-        true
+        shape1, shape2: CpShape
+        arbiter getShapes(shape1&, shape2&)
+
+        hero := shape2 getUserData() as Ball
+        hero harm()
+
+        // if we killed the ball, don't bother colliding
+        !(hero dead)
     }
 
     separate: func (arbiter: CpArbiter, space: CpSpace) {
