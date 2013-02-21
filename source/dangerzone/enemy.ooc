@@ -60,13 +60,11 @@ Enemy: class extends Entity {
     }
 
     initHandlers: func {
-        /*
         if (!enemyHandler) {
             enemyHandler = EnemyHandler new()
-            level space addCollisionHandler(CollisionTypes HEROES,
+            level space addCollisionHandler(CollisionTypes ENEMIES,
                 CollisionTypes HEROES, enemyHandler)
         }
-        */
     }
     
     updateShape: func {
@@ -83,7 +81,7 @@ Enemy: class extends Entity {
         shape setUserData(this)
         shape setFriction(0.0)
         shape setElasticity(0.9)
-        shape setCollisionType(CollisionTypes HEROES)
+        shape setCollisionType(CollisionTypes ENEMIES)
         level space addShape(shape)
     }
 
@@ -104,15 +102,10 @@ EnemyHandler: class extends CpCollisionHandler {
         // TODO
     }
 
-    delta: func (arbiter: CpArbiter, delta: Int) {
-        shape1, shape2: CpShape
-        arbiter getShapes(shape1&, shape2&) 
+    preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
+        arbiter setElasticity(0.9)
 
-        ball1 := shape1 getUserData() as Ball
-        ball2 := shape2 getUserData() as Ball
-
-        ball1 selfCount += delta
-        ball2 selfCount += delta
+        true
     }
 
 }

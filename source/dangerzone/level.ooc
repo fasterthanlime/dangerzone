@@ -54,9 +54,6 @@ Level: class {
 
     initPhysx: func {
         space = CpSpace new()
-
-        //gravity := cpv(0, -1800)
-        //space setGravity(gravity)
     }
 
     initEvents: func {

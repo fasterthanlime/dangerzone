@@ -82,7 +82,7 @@ Ball: class extends Entity {
         }
 
         // local gravity
-        body setForce(cpv(0, -1800))
+        body setForce(cpv(0, -8000))
 
         scale := radius * 2.0 / spriteSide
         sprite scale set!(scale, scale)
@@ -123,7 +123,7 @@ Ball: class extends Entity {
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
         shape setFriction(0.9)
-        shape setElasticity(0.9)
+        shape setElasticity(0.2)
         shape setCollisionType(CollisionTypes HEROES)
         level space addShape(shape)
     }
