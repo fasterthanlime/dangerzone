@@ -50,10 +50,37 @@ Enemy: class extends Entity {
         currentSpeed := vel norm()
         newNorm := currentSpeed * 0.9 + speed * 0.1
         body setVel(cpv(vel normalized() mul(newNorm)))
+    
+        stayInTerrain()
 
         sprite sync(body)
 
         true
+    }
+
+    stayInTerrain: func {
+        // constrain in the terrain
+        padding := 10
+        pos := body getPos()
+
+        dye := level dye
+
+        if (pos x > dye width) {
+            pos x = dye width - padding
+            body setPos(pos)
+        }
+        if (pos x < 0) {
+            pos x = padding
+            body setPos(pos)
+        }
+        if (pos y >= dye height) {
+            pos y = dye width - padding
+            body setPos(pos)
+        }
+        if (pos y < 0) {
+            pos y = padding
+            body setPos(pos)
+        }
     }
 
     initPhysx: func (vel: Vec2) {

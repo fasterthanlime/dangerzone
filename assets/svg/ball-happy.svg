@@ -17,7 +17,7 @@
    version="1.1"
    inkscape:version="0.48.2 r9819"
    sodipodi:docname="ball-happy.svg"
-   inkscape:export-filename="/home/amos/Dev/dangerzone/assets/png/ball-happy.png"
+   inkscape:export-filename="G:/Dev/dangerzone/assets/png/ball-happy.png"
    inkscape:export-xdpi="89.959999"
    inkscape:export-ydpi="89.959999">
   <defs
@@ -121,7 +121,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

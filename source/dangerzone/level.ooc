@@ -7,11 +7,11 @@ use dye
 import dye/[core, math, input]
 
 // sdk stuff
-import structs/[ArrayList, HashMap]
+import structs/[List, ArrayList, HashMap]
 import math/Random
 
 // our stuff
-import dangerzone/[game, ball, walls, enemy]
+import dangerzone/[game, ball, walls, enemy, leveldef]
 
 Level: class {
 
@@ -31,7 +31,10 @@ Level: class {
     balls := 20
     filled := 0.0
 
+    // current level stuff
     currentLevel := 0
+    def: LevelDef
+    defs: List<LevelDef>
 
     init: func (=game) {
         group = GlGroup new()
@@ -40,7 +43,9 @@ Level: class {
         initEvents()
 
         Walls new(this)
-        loadLevel(1)
+
+        defs = LevelDef getList()
+        loadLevel(0)
     }
 
     spawnEnemies: func (count: Int) {
@@ -69,6 +74,14 @@ Level: class {
 
         input onMouseRelease(MouseButton LEFT, |mr|
             releaseBall()
+        )
+
+        input onKeyPress(KeyCode RIGHT, |kp|
+            loadLevel(currentLevel + 1)
+        )
+
+        input onKeyPress(KeyCode LEFT, |kp|
+            loadLevel(currentLevel - 1)
         )
     }
 
@@ -121,7 +134,7 @@ Level: class {
     winloss: func {
         if (lost?()) {
             lives = 2
-            loadLevel(1)
+            loadLevel(0)
         }
 
         if (won?()) {
@@ -140,7 +153,22 @@ Level: class {
 
     loadLevel: func (=currentLevel) {
         reset()
-        spawnEnemies(currentLevel + 1)
+
+        if (currentLevel >= defs size) {
+            // won the game!
+            loadLevel(0)
+            return
+        }
+
+        if (currentLevel < 0) {
+            // wrapping around - cheater!
+            loadLevel(defs size - 1)
+            return
+        }
+
+        def = defs get(currentLevel)
+        spawnEnemies(def numEnemies)
+        balls = def numBalls
     }
 
     reset: func {

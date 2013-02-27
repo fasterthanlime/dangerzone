@@ -56,6 +56,12 @@ Ball: class extends Entity {
             return false
         }
 
+        brightness := 255
+        if (snapped) {
+            brightness = 64
+        }
+        sprite color set!(brightness, brightness, brightness)
+
         if (snapped) {
             pos := level dye input getMousePos()
             size := level dye size toVec2()
