@@ -6,6 +6,9 @@ import deadlogger/[Log, Logger]
 use dye
 import dye/[core, input, primitives, sprite, math, loop, text]
 
+use bleep
+import bleep
+
 // our stuff
 import dangerzone/[logging, level, leveldef, ball]
 
@@ -13,6 +16,7 @@ Game: class {
 
     logger: Logger
     dye: DyeContext
+    bleep: Bleep
 
     loop: FixedLoop
 
@@ -31,6 +35,8 @@ Game: class {
         logger info("Starting dangerzone")
 
         dye = DyeContext new(640, 480, "Danger Zone") 
+
+        initMusic()
         initEvents()
 
         level = Level new(this)
@@ -69,6 +75,11 @@ Game: class {
         )
 
         dye quit()
+    }
+
+    initMusic: func {
+        bleep = Bleep new()
+        bleep playMusic("assets/ogg/dangerzone-01.ogg", 0)
     }
 
     initEvents: func {
