@@ -120,16 +120,18 @@ Level: class {
 
     winloss: func {
         if (lost?()) {
+            lives = 2
             loadLevel(1)
         }
 
         if (won?()) {
+            lives += 1
             loadLevel(currentLevel + 1)
         }
     }
 
     lost?: func -> Bool {
-        lives == 0
+        lives <= 0 || balls <= 0
     }
 
     won?: func -> Bool {
@@ -138,11 +140,11 @@ Level: class {
 
     loadLevel: func (=currentLevel) {
         reset()
-
         spawnEnemies(currentLevel + 1)
     }
 
     reset: func {
+        balls = 20
         while (!entities empty?()) {
             entities removeAt(0) destroy()
         }

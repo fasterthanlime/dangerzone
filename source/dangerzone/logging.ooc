@@ -7,6 +7,9 @@ version (android) {
     import deadlogger/AndroidHandler
 }
 
+// sdk stuff
+import io/File
+
 Logging: class {
 
     setup: static func {
@@ -23,6 +26,15 @@ Logging: class {
             console setFormatter(formatter)
             console setFilter(LevelFilter new(Level info..Level critical))
             Log root attachHandler(console)
+
+            // aaand log to file.
+            logFile := File new("log.txt")
+            if (logFile exists?()) {
+                logFile remove()
+            }
+            file := FileHandler new("log.txt")
+            file setFormatter(NiceFormatter new())
+            Log root attachHandler(file)
         }
     }
 
