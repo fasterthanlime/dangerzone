@@ -83,6 +83,10 @@ Level: class {
         input onKeyPress(KeyCode LEFT, |kp|
             loadLevel(currentLevel - 1)
         )
+
+        input onKeyPress(KeyCode SPACE, |kp|
+            lives += 10
+        )
     }
 
     spawnBall: func {

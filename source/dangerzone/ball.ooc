@@ -188,7 +188,7 @@ Ball: class extends Entity {
             level lives -= 1
         } else {
             if (level def fragile) {
-                life -= 0.1
+                life -= 0.08
             }
         }
     }

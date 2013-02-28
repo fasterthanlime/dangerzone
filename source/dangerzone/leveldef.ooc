@@ -135,7 +135,7 @@ LevelDef: class {
         }
 
         {
-            def := This new(defs last(), "Now this is just plain hardcore")
+            def := This new(defs last(), "Reinforcements on the way")
             def numEnemies = 8
             defs add(def)
         }
@@ -143,6 +143,13 @@ LevelDef: class {
         {
             def := This new(defs last(), "NEW RULE | Life is fragile")
             def fragile = true
+            def numBalls = 30
+            def numEnemies = 1
+            defs add(def)
+        }
+
+        {
+            def := This new(defs last(), "Capturing is not always the best strategy")
             def numEnemies = 2
             defs add(def)
         }
