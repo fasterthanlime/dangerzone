@@ -79,7 +79,7 @@ Game: class {
 
     initMusic: func {
         bleep = Bleep new()
-        bleep playMusic("assets/ogg/dangerzone-01.ogg", 0)
+        bleep playMusic("assets/ogg/dangerzone-01.ogg", -1)
     }
 
     initEvents: func {

@@ -122,7 +122,9 @@ Level: class {
         for (e in entities) {
             match e {
                 case b: Ball =>
-                    ballArea += b area()             
+                    if (!b snapped) {
+                        ballArea += b area()             
+                    }
             }
         }
 
@@ -144,7 +146,7 @@ Level: class {
     }
 
     lost?: func -> Bool {
-        lives <= 0 || balls <= 0
+        lives < 0 || balls < 0
     }
 
     won?: func -> Bool {
@@ -199,5 +201,6 @@ Entity: class {
 CollisionTypes: enum from Int {
     HEROES
     ENEMIES
+    WALLS
 }
 

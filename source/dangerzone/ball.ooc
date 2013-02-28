@@ -13,7 +13,7 @@ import chipmunk
 import math
 
 // our stuff
-import dangerzone/[level]
+import dangerzone/[level, leveldef]
 
 Ball: class extends Entity {
 
@@ -34,7 +34,9 @@ Ball: class extends Entity {
 
     selfCount := 0
 
-    selfHandler: static CpCollisionHandler
+    life := 1.0
+
+    selfHandler, ballWallsHandler: static CpCollisionHandler
 
     init: func (.level, .pos) {
         super(level)
@@ -56,11 +58,16 @@ Ball: class extends Entity {
             return false
         }
 
-        brightness := 255
-        if (snapped) {
-            brightness = 64
+        if (life <= 0.0) {
+            dead = true
+            return false
         }
-        sprite color set!(brightness, brightness, brightness)
+
+        brightness := 64
+        if (snapped) {
+            brightness = 255
+        }
+        sprite color set!((1.0 - life) * (255.0 - 64.0) + brightness, brightness, brightness)
 
         if (snapped) {
             pos := level dye input getMousePos()
@@ -73,8 +80,13 @@ Ball: class extends Entity {
             }
 
             if (selfCount > 0) {
-                // we've hit something!
-                unsnap()
+                if (level def selfHurt) {
+                    // we've hit something! - we're doomed
+                    harm()
+                } else {
+                    // we've hit something! - unsnap
+                    unsnap()
+                }
             }
 
             if (pos x < radius) {
@@ -131,6 +143,12 @@ Ball: class extends Entity {
             level space addCollisionHandler(CollisionTypes HEROES,
                 CollisionTypes HEROES, selfHandler)
         }
+
+        if (!ballWallsHandler) {
+            ballWallsHandler = BallWallsHandler new()
+            level space addCollisionHandler(CollisionTypes HEROES,
+                CollisionTypes WALLS, ballWallsHandler)
+        }
     }
     
     updateShape: func {
@@ -168,6 +186,10 @@ Ball: class extends Entity {
         if (snapped) {
             dead = true
             level lives -= 1
+        } else {
+            if (level def fragile) {
+                life -= 0.1
+            }
         }
     }
 
@@ -194,6 +216,24 @@ SelfHandler: class extends CpCollisionHandler {
 
         ball1 selfCount += delta
         ball2 selfCount += delta
+    }
+
+}
+
+BallWallsHandler: class extends CpCollisionHandler {
+
+    begin: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
+        shape1, shape2: CpShape
+        arbiter getShapes(shape1&, shape2&) 
+
+        ball := shape1 getUserData() as Ball
+        if (ball level def bordersHurt) {
+            if (ball snapped) {
+                ball harm()
+            }
+        }
+
+        true
     }
 
 }
