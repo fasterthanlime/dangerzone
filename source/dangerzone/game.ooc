@@ -10,13 +10,15 @@ use bleep
 import bleep
 
 // our stuff
-import dangerzone/[logging, level, leveldef, ball]
+import dangerzone/[logging, level, leveldef, ball, music]
 
 Game: class {
 
     logger: Logger
     dye: DyeContext
+
     bleep: Bleep
+    music: Music
 
     loop: FixedLoop
 
@@ -56,6 +58,7 @@ Game: class {
         loop = FixedLoop new(dye, 60)
         loop run(||
             level update()
+            music update()
 
             counter += 1
             if (counter >= 5) {
@@ -79,7 +82,8 @@ Game: class {
 
     initMusic: func {
         bleep = Bleep new()
-        bleep playMusic("assets/ogg/dangerzone-01.ogg", -1)
+        music = Music new(this)
+        music setTheme("ingame")
     }
 
     initEvents: func {
