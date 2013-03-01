@@ -143,7 +143,7 @@ LevelDef: class {
         {
             def := This new(defs last(), "NEW RULE | Life is fragile")
             def fragile = true
-            def numBalls = 30
+            def numBalls = 40
             def numEnemies = 1
             defs add(def)
         }
