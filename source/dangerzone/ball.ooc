@@ -25,6 +25,8 @@ Ball: class extends Entity {
     body: CpBody
 
     radius := 1.0
+    targetRadius := 1.0
+
     spriteSide := 512.0
 
     mass := 10.0
@@ -33,8 +35,15 @@ Ball: class extends Entity {
     dead := false
 
     selfCount := 0
+    invulnerableCount := 0
+    invulnerableLength := 20
+    invulnerable: Bool { get { invulnerableCount > 0 } }
 
     life := 1.0
+
+    harmed := false
+
+    brightness := 1.0
 
     selfHandler, ballWallsHandler: static CpCollisionHandler
 
@@ -63,11 +72,40 @@ Ball: class extends Entity {
             return false
         }
 
-        brightness := 64
-        if (snapped) {
-            brightness = 255
+        if (selfCount < 2 && invulnerableCount > 0) {
+            invulnerableCount -= 1
         }
-        sprite color set!((1.0 - life) * (255.0 - 64.0) + brightness, brightness, brightness)
+
+        if (harmed) {
+            harmed = false
+            if (snapped) {
+                dead = true
+                level lives -= 1
+            } else {
+                if (level def fragile && !invulnerable) {
+                    life -= 0.1
+                    targetRadius *= 0.85
+                    updateShape()
+                }
+            }
+        }
+
+        if ((radius - targetRadius) abs() > EPSILON) {
+            alpha := 0.95
+            radius = radius * alpha + targetRadius * (1 - alpha)
+            updateShape()
+        }
+
+        targetBrightness := 65.0
+        if (invulnerable) {
+            targetBrightness = 255.0
+        }
+
+        {
+            alpha := 0.95
+            brightness = brightness * alpha + targetBrightness * (1 - alpha)
+        }
+        sprite color set!(brightness, brightness, brightness)
 
         if (snapped) {
             pos := level dye input getMousePos()
@@ -104,7 +142,7 @@ Ball: class extends Entity {
 
             body setPos(cpv(pos))
             body setVel(cpv(0, 0))
-            radius += 1.2
+            setRadius(radius + 1.2)
             updateShape()
         }
 
@@ -117,6 +155,11 @@ Ball: class extends Entity {
         sprite sync(body)
 
         true
+    }
+
+    setRadius: func (=radius) {
+        targetRadius = radius
+        updateShape()
     }
 
     destroy: func {
@@ -183,14 +226,7 @@ Ball: class extends Entity {
     harm: func {
         if (dead) { return }
 
-        if (snapped) {
-            dead = true
-            level lives -= 1
-        } else {
-            if (level def fragile) {
-                life -= 0.08
-            }
-        }
+        harmed = true
     }
 
 }
@@ -199,6 +235,13 @@ SelfHandler: class extends CpCollisionHandler {
 
     begin: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
         delta(arbiter, 1)
+
+        true
+    }
+
+    preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
+        arbiter setElasticity(0.05) 
+        arbiter setFriction(0.7)
 
         true
     }
@@ -215,7 +258,14 @@ SelfHandler: class extends CpCollisionHandler {
         ball2 := shape2 getUserData() as Ball
 
         ball1 selfCount += delta
+        if (ball1 selfCount >= 2) {
+            ball1 invulnerableCount = ball1 invulnerableLength
+        }
+
         ball2 selfCount += delta
+        if (ball2 selfCount >= 2) {
+            ball2 invulnerableCount = ball2 invulnerableLength
+        }
     }
 
 }
@@ -232,6 +282,13 @@ BallWallsHandler: class extends CpCollisionHandler {
                 ball harm()
             }
         }
+
+        true
+    }
+
+    preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
+        arbiter setElasticity(0.05) 
+        arbiter setFriction(0.7)
 
         true
     }
