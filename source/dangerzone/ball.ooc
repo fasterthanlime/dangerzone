@@ -128,7 +128,7 @@ Ball: class extends Entity {
             alpha := 0.95
             brightness = brightness * alpha + targetBrightness * (1 - alpha)
         }
-        sprite color set!(brightness, brightness, spiky ? 20 : brightness)
+        sprite color set!(brightness, brightness, spiky || spiker ? 20 : brightness)
         diameter := radius * 2.0
 
         if (snapped) {
@@ -177,7 +177,7 @@ Ball: class extends Entity {
         sprite sync(body)
 
         if (spikeSprite) {
-            spikeScale := scale * 1.3
+            spikeScale := scale * 1.2
             spikeSprite scale set!(spikeScale, spikeScale)
             spikeSprite sync(body)
         }

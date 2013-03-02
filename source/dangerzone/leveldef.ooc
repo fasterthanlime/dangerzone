@@ -172,6 +172,24 @@ LevelDef: class {
             defs add(def)
         }
 
+        {
+            def := This new(defs last(), "Five" format(click))
+            def numEnemies = 5
+            defs add(def)
+        }
+
+        {
+            def := This new(defs last(), "Five" format(click))
+            def numEnemies = 5
+            defs add(def)
+        }
+
+        {
+            def := This new(defs last(), "Six" format(click))
+            def numEnemies = 6
+            defs add(def)
+        }
+
         defs
     }
     
