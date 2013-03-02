@@ -42,10 +42,6 @@ LevelDef: class {
         {
             def := This new("%s and hold to grow balls | Fill 66%" format(click))
 
-            // FIXME: testing
-            def fragile = true
-            def spiky = true
-
             def numEnemies = 0
             defs add(def)
         }
