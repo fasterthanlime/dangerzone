@@ -14,9 +14,19 @@ import deadlogger/[Log, Logger]
 
 // sdk stuff
 import math
+import structs/[ArrayList, List, HashMap]
 
 // our stuff
 import dangerzone/[level, leveldef]
+
+SpikeRel: class {
+    point: Vec2
+    other: Ball
+    constraint: CpPinJoint
+
+    init: func (=other, =point) {
+    }
+}
 
 Ball: class extends Entity {
 
@@ -35,7 +45,7 @@ Ball: class extends Entity {
 
     spriteSide := 512.0
 
-    mass := 10.0
+    mass := 5.0
 
     snapped := true
     dead := false
@@ -43,13 +53,12 @@ Ball: class extends Entity {
     selfCount := 0
     invulnerableCount := 0
     invulnerableLength := 30
-    invulnerable: Bool { get { invulnerableCount > 0 || spiky || spiker } }
+    invulnerable: Bool { get { invulnerableCount > 0 || green } }
+    green: Bool { get { spiky || (selfCount >= 0 && !spikers empty?()) } }
 
     spiky := false
-
-    spiker: This
-    spikePoint: Vec2
-    spikeConstraint: CpPinJoint
+    spikers := HashMap<This, SpikeRel> new()
+    newSpikers := false
 
     life := 1.0
 
@@ -88,11 +97,15 @@ Ball: class extends Entity {
         }
 
         // handle spikes
-        if (spiker && !spikeConstraint) {
-            point := cpv(spikePoint)
-            spikeConstraint = CpPinJoint new(spiker body, body, point, point)
-            level space addConstraint(spikeConstraint)
-            logger info("Added point constraint!")
+        if (newSpikers) {
+            newSpikers = false
+
+            for (rel in spikers) if (!rel constraint) {
+                point := cpv(rel point)
+                rel constraint = CpPinJoint new(rel other body, body, point, point)
+                level space addConstraint(rel constraint)
+                logger info("Added point constraint!")
+            }
         }
 
         if (selfCount < 2 && invulnerableCount > 0) {
@@ -114,9 +127,13 @@ Ball: class extends Entity {
         }
 
         if ((radius - targetRadius) abs() > EPSILON) {
-            alpha := 0.95
-            radius = radius * alpha + targetRadius * (1 - alpha)
-            updateShape()
+            if (green) {
+                targetRadius = radius
+            } else {
+                alpha := 0.95
+                radius = radius * alpha + targetRadius * (1 - alpha)
+                updateShape()
+            }
         }
 
         targetBrightness := 65.0
@@ -128,7 +145,7 @@ Ball: class extends Entity {
             alpha := 0.95
             brightness = brightness * alpha + targetBrightness * (1 - alpha)
         }
-        sprite color set!(brightness, brightness, spiky || spiker ? 20 : brightness)
+        sprite color set!(brightness, brightness, green ? 20 : brightness)
         diameter := radius * 2.0
 
         if (snapped) {
@@ -192,6 +209,9 @@ Ball: class extends Entity {
 
     destroy: func {
         level group remove(group)
+        for (rel in spikers) {
+            level space removeConstraint(rel constraint)
+        }
         level space removeShape(shape)
         level space removeBody(body)
     }
@@ -258,6 +278,11 @@ Ball: class extends Entity {
     }
 
     makeSpiky: func {
+        if (green) {
+            // TODO: feedback
+            return
+        }
+
         if (invulnerable && !spiky) {
             level balls -= 1
             spiky = true
@@ -268,6 +293,10 @@ Ball: class extends Entity {
         } else {
             // TODO: feedback
         }
+    }
+
+    spikedBy?: func (other: This) -> Bool {
+        spikers contains?(other)
     }
 
 }
@@ -315,13 +344,15 @@ SelfHandler: class extends CpCollisionHandler {
                 ball2 = tmp
             }
 
-            if (!ball2 spiker) {
-                ball2 spiker = ball1
+            if (!ball2 spikedBy?(ball1)) {
 
                 set := arbiter getContactPointSet()
                 contactPos := vec2(set points[0] point)
 
-                ball2 spikePoint = contactPos
+                rel := SpikeRel new(ball1, contactPos)
+                ball2 spikers put(rel other, rel)
+                ball2 newSpikers = true
+
                 Ball logger info("spiky collision going on at %s, delta = %d", contactPos _, delta)
             }
         }

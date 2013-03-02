@@ -166,15 +166,11 @@ LevelDef: class {
         }
 
         {
-            def := This new(defs last(), "NEW RULE | %s on bright balls to defend!" format(click))
-            def numBalls = 50
+            def := This new(defs last(), "RULE RESET | %s bright balls." format(click))
+            def bordersHurt = false
+            def selfHurt = false
+            def numBalls = 40
             def numEnemies = 4
-            defs add(def)
-        }
-
-        {
-            def := This new(defs last(), "Five" format(click))
-            def numEnemies = 5
             defs add(def)
         }
 
@@ -189,6 +185,13 @@ LevelDef: class {
             def numEnemies = 6
             defs add(def)
         }
+
+        {
+            def := This new(defs last(), "Seven" format(click))
+            def numEnemies = 7
+            defs add(def)
+        }
+
 
         defs
     }
