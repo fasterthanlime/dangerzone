@@ -68,7 +68,7 @@ Level: class {
             vel := vec2(velX, velY)
 
             pos := vec2(x, y)
-            add(Enemy new(this, pos, vel, 256.0))
+            add(Enemy new(this, pos, vel, 240.0))
         }
     }
 

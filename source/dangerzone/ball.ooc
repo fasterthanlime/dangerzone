@@ -45,7 +45,7 @@ Ball: class extends Entity {
 
     spriteSide := 512.0
 
-    mass := 5.0
+    mass := 10.0
 
     snapped := true
     dead := false
@@ -124,7 +124,7 @@ Ball: class extends Entity {
                 //pinJoint2 setDist(0.0)
 
                 rel constraint2 = pinJoint2
-                //level space addConstraint(pinJoint2)
+                level space addConstraint(pinJoint2)
 
                 // fiddling
                 //errorBias := 0.2
@@ -212,10 +212,12 @@ Ball: class extends Entity {
         }
 
         // local gravity
-        if (green) {
-            body setForce(cpv(0, -1000))
-        } else {
-            body setForce(cpv(0, -4000))
+        if (!spiky) {
+            if (green) {
+                body setForce(cpv(0, -2000))
+            } else {
+                body setForce(cpv(0, -8000))
+            }
         }
 
         scale := diameter * (1.0 / spriteSide as Float)
@@ -289,7 +291,7 @@ Ball: class extends Entity {
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
         shape setFriction(0.8)
-        shape setElasticity(0.2)
+        shape setElasticity(0.0)
         shape setCollisionType(CollisionTypes HEROES)
         level space addShape(shape)
     }
@@ -344,8 +346,8 @@ SelfHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.0) 
-        arbiter setFriction(0.8)
+        //arbiter setElasticity(0.0) 
+        //arbiter setFriction(0.4)
 
         true
     }
@@ -410,8 +412,8 @@ BallWallsHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.1) 
-        arbiter setFriction(0.8)
+        //arbiter setElasticity(0.0) 
+        //arbiter setFriction(0.4)
 
         true
     }

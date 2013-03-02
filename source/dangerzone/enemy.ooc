@@ -24,7 +24,7 @@ Enemy: class extends Entity {
     radius := 8.0
     spriteSide := 32.0
 
-    mass := 0.01
+    mass := 0.008
     speed: Float
 
     enemyHandler: static CpCollisionHandler
@@ -48,7 +48,13 @@ Enemy: class extends Entity {
         // try to attain constant velocity
         vel := vec2(body getVel())
         currentSpeed := vel norm()
-        newNorm := currentSpeed * 0.95 + speed * 0.05
+
+        alpha := 0.995
+        newNorm := currentSpeed * alpha + speed * (1.0 - alpha)
+        if (newNorm > speed) {
+            newNorm = speed
+        }
+
         body setVel(cpv(vel normalized() mul(newNorm)))
     
         stayInTerrain()
@@ -152,7 +158,7 @@ EnemyHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.9)
+        arbiter setElasticity(0.5)
 
         true
     }
