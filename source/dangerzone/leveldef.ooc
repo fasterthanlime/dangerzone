@@ -30,8 +30,13 @@ LevelDef: class {
     getList: static func -> List<This> {
         defs := ArrayList<This> new()
 
+        click := "Click"
+        version (android || ios) {
+            click = "Touch"
+        }
+
         {
-            def := This new("Grow balls to fill 66%")
+            def := This new("%s and hold to grow balls | Fill 66%" format(click))
             def numEnemies = 0
             defs add(def)
         }
@@ -151,6 +156,19 @@ LevelDef: class {
         {
             def := This new(defs last(), "Capturing is not always the best strategy")
             def numEnemies = 2
+            defs add(def)
+        }
+
+        {
+            def := This new(defs last(), "Friends make life brighter")
+            def numEnemies = 3
+            defs add(def)
+        }
+
+        {
+            def := This new(defs last(), "NEW RULE | %s on bright balls to defend!" format(click))
+            def numBalls = 50
+            def numEnemies = 4
             defs add(def)
         }
 

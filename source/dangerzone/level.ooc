@@ -6,6 +6,12 @@ import chipmunk
 use dye
 import dye/[core, math, input]
 
+use gnaar
+import gnaar/[utils]
+
+use deadlogger
+import deadlogger/[Log, Logger]
+
 // sdk stuff
 import structs/[List, ArrayList, HashMap]
 import math/Random
@@ -14,6 +20,8 @@ import math/Random
 import dangerzone/[game, ball, walls, enemy, leveldef]
 
 Level: class {
+
+    logger := static Log getLogger(This name)
 
     game: Game
 
@@ -91,9 +99,28 @@ Level: class {
 
     spawnBall: func {
         pos := game dye input getMousePos()
-        ball := Ball new(this, pos)
-        add(ball)
-        lastBall = ball
+
+        touched := false
+        for (e in entities) {
+            match e {
+                case ball: Ball =>
+                    ballPos := vec2(ball body getPos())
+                    dist := pos dist(ballPos)
+                    if (dist < ball radius) {
+                        logger info("Touching a ball!")
+                        ball makeSpiky()
+                        touched = true
+                        break
+                    }
+            }
+        }
+
+        if (!touched) {
+            // all clear, spawn a new one
+            ball := Ball new(this, pos)
+            add(ball)
+            lastBall = ball
+        }
     }
 
     releaseBall: func {

@@ -9,6 +9,9 @@ import gnaar/[utils]
 use chipmunk
 import chipmunk
 
+use deadlogger
+import deadlogger/[Log, Logger]
+
 // sdk stuff
 import math
 
@@ -17,9 +20,12 @@ import dangerzone/[level, leveldef]
 
 Ball: class extends Entity {
 
+    logger := static Log getLogger(This name)
+
     pos: Vec2
 
-    sprite: GlSprite
+    group: GlGroup
+    sprite, spikeSprite: GlSprite
 
     shape: CpShape
     body: CpBody
@@ -36,8 +42,10 @@ Ball: class extends Entity {
 
     selfCount := 0
     invulnerableCount := 0
-    invulnerableLength := 20
+    invulnerableLength := 30
     invulnerable: Bool { get { invulnerableCount > 0 } }
+
+    spiky := false
 
     life := 1.0
 
@@ -52,8 +60,11 @@ Ball: class extends Entity {
 
         this pos = pos clone()
 
+        group = GlGroup new()
+        level group add(group)
+
         sprite = GlSprite new("assets/png/ball-happy.png")
-        level group add(sprite)
+        group add(sprite)
 
         initPhysx()
     }
@@ -105,13 +116,13 @@ Ball: class extends Entity {
             alpha := 0.95
             brightness = brightness * alpha + targetBrightness * (1 - alpha)
         }
-        sprite color set!(brightness, brightness, brightness)
+        sprite color set!(brightness, brightness, spiky ? 20 : brightness)
+        diameter := radius * 2.0
 
         if (snapped) {
             pos := level dye input getMousePos()
             size := level dye size toVec2()
 
-            diameter := radius * 2.0
             if (diameter >= size x || diameter >= size y) {
                 // we're as big as we're gonna get
                 unsnap()
@@ -149,10 +160,15 @@ Ball: class extends Entity {
         // local gravity
         body setForce(cpv(0, -8000))
 
-        scale := radius * 2.0 / spriteSide
+        scale := diameter * (1.0 / spriteSide as Float)
         sprite scale set!(scale, scale)
-
         sprite sync(body)
+
+        if (spikeSprite) {
+            spikeScale := scale * 1.3
+            spikeSprite scale set!(spikeScale, spikeScale)
+            spikeSprite sync(body)
+        }
 
         true
     }
@@ -163,7 +179,7 @@ Ball: class extends Entity {
     }
 
     destroy: func {
-        level group remove(sprite)
+        level group remove(group)
         level space removeShape(shape)
         level space removeBody(body)
     }
@@ -229,6 +245,18 @@ Ball: class extends Entity {
         harmed = true
     }
 
+    makeSpiky: func {
+        if (invulnerable && !spiky) {
+            level balls -= 1
+            spiky = true
+
+            spikeSprite = GlSprite new("assets/png/ball-spiky.png")
+            group add(spikeSprite)
+        } else {
+            // TODO: feedback
+        }
+    }
+
 }
 
 SelfHandler: class extends CpCollisionHandler {
@@ -265,6 +293,10 @@ SelfHandler: class extends CpCollisionHandler {
         ball2 selfCount += delta
         if (ball2 selfCount >= 2) {
             ball2 invulnerableCount = ball2 invulnerableLength
+        }
+
+        if (ball1 spiky || ball2 spiky) {
+            Ball logger info("spiky collision going on o/")
         }
     }
 
