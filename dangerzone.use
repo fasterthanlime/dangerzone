@@ -1,7 +1,7 @@
 Name: Danger Zone
 Version: 0.1
 Description: A reddit super fill up clone!
-Requires: dye, gnaar, chipmunk, yaml
+Requires: dye, gnaar, chipmunk, yaml, bleep
 SourcePath: source
 Main: dangerzone.ooc
 
