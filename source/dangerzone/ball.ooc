@@ -45,7 +45,7 @@ Ball: class extends Entity {
 
     spriteSide := 512.0
 
-    mass := 2.0
+    mass := 5.0
 
     snapped := true
     dead := false
@@ -101,11 +101,16 @@ Ball: class extends Entity {
             newSpikers = false
 
             for (rel in spikers) if (!rel constraint) {
-                pinJoint := CpPinJoint new(body, rel other body, rel other body getPos(), body getPos())
+                pinJoint := CpPinJoint new(body, rel other body,
+                    body getPos(), rel other body getPos())
+                dist := radius + rel other radius
+                //pinJoint setDist(dist)
+
+                logger warn("first pin dist = %.2f", pinJoint getDist())
+                
                 rel constraint = pinJoint
                 level space addConstraint(rel constraint)
             
-                // TODO: that's experimental, man
                 pos1 := vec2(body getPos())
                 pos2 := vec2(rel other body getPos())
 
@@ -114,14 +119,17 @@ Ball: class extends Entity {
                 point1 := pos1 add(diff mul(radius))
                 point2 := pos2 sub(diff mul(rel other radius))
 
-                logger info("point1 = %s, point2 = %s, dist = %.2f", point1 _, point2 _, point2 dist(point1))
+                logger warn("point1 = %s, point2 = %s, dist = %.2f", point1 _, point2 _, point2 dist(point1))
                 pinJoint2 := CpPinJoint new(body, rel other body, cpv(point1), cpv(point2))
                 //pinJoint2 setDist(0.0)
-                level space addConstraint(pinJoint2)
 
                 rel constraint2 = pinJoint2
+                //level space addConstraint(pinJoint2)
 
-                logger info("Added point constraint! dist = %.2f", pinJoint getDist())
+                // fiddling
+                //errorBias := 0.2
+                //rel constraint setErrorBias(errorBias)
+                //rel constraint2 setErrorBias(errorBias)
             }
         }
 
@@ -205,7 +213,7 @@ Ball: class extends Entity {
 
         // local gravity
         if (green) {
-            body setForce(cpv(0, -2000))
+            body setForce(cpv(0, -1000))
         } else {
             body setForce(cpv(0, -4000))
         }
@@ -280,7 +288,7 @@ Ball: class extends Entity {
 
         shape = CpCircleShape new(body, radius, cpv(0, 0))
         shape setUserData(this)
-        shape setFriction(0.9)
+        shape setFriction(0.8)
         shape setElasticity(0.2)
         shape setCollisionType(CollisionTypes HEROES)
         level space addShape(shape)
@@ -336,8 +344,8 @@ SelfHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.05) 
-        arbiter setFriction(0.9)
+        arbiter setElasticity(0.0) 
+        arbiter setFriction(0.8)
 
         true
     }
@@ -402,8 +410,8 @@ BallWallsHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.0) 
-        arbiter setFriction(0.2)
+        arbiter setElasticity(0.1) 
+        arbiter setFriction(0.8)
 
         true
     }
