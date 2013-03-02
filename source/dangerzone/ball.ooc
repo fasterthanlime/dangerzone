@@ -43,9 +43,13 @@ Ball: class extends Entity {
     selfCount := 0
     invulnerableCount := 0
     invulnerableLength := 30
-    invulnerable: Bool { get { invulnerableCount > 0 } }
+    invulnerable: Bool { get { invulnerableCount > 0 || spiky || spiker } }
 
     spiky := false
+
+    spiker: This
+    spikePoint: Vec2
+    spikeConstraint: CpPinJoint
 
     life := 1.0
 
@@ -81,6 +85,14 @@ Ball: class extends Entity {
         if (life <= 0.0) {
             dead = true
             return false
+        }
+
+        // handle spikes
+        if (spiker && !spikeConstraint) {
+            point := cpv(spikePoint)
+            spikeConstraint = CpPinJoint new(spiker body, body, point, point)
+            level space addConstraint(spikeConstraint)
+            logger info("Added point constraint!")
         }
 
         if (selfCount < 2 && invulnerableCount > 0) {
@@ -249,6 +261,7 @@ Ball: class extends Entity {
         if (invulnerable && !spiky) {
             level balls -= 1
             spiky = true
+            updateShape() // so we re-have collisions
 
             spikeSprite = GlSprite new("assets/png/ball-spiky.png")
             group add(spikeSprite)
@@ -295,8 +308,22 @@ SelfHandler: class extends CpCollisionHandler {
             ball2 invulnerableCount = ball2 invulnerableLength
         }
 
-        if (ball1 spiky || ball2 spiky) {
-            Ball logger info("spiky collision going on o/")
+        if (delta > 0 && (ball1 spiky || ball2 spiky)) {
+            if (ball2 spiky) {
+                tmp := ball1
+                ball1 = ball2
+                ball2 = tmp
+            }
+
+            if (!ball2 spiker) {
+                ball2 spiker = ball1
+
+                set := arbiter getContactPointSet()
+                contactPos := vec2(set points[0] point)
+
+                ball2 spikePoint = contactPos
+                Ball logger info("spiky collision going on at %s, delta = %d", contactPos _, delta)
+            }
         }
     }
 

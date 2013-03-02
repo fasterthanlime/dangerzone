@@ -26,6 +26,7 @@ Level: class {
     game: Game
 
     space: CpSpace
+    physicSteps := 10
     entities := ArrayList<Entity> new()
 
     group: GlGroup
@@ -134,8 +135,7 @@ Level: class {
     }
 
     update: func {
-        timeStep: CpFloat = 1.0 / game loop fpsGoal
-        space step(timeStep)
+        updatePhysics()
 
         iter := entities iterator()
         while (iter hasNext?()) {
@@ -150,18 +150,31 @@ Level: class {
         terrainArea := (dye width * dye height) as Float
         ballArea := 0.0
 
+        canwin := true
+
         for (e in entities) {
             match e {
                 case b: Ball =>
-                    if (!b snapped) {
-                        ballArea += b area()             
+                    if (b snapped) {
+                        canwin = false
                     }
+                    ballArea += b area()             
             }
         }
 
         filled = ballArea * 100.0 / terrainArea
 
-        winloss()
+        if (canwin) {
+            winloss()
+        }
+    }
+
+    updatePhysics: func {
+        timeStep: CpFloat = 1.0 / game loop fpsGoal
+        realStep := timeStep / physicSteps as Float
+        for (i in 0..physicSteps) {
+            space step(realStep)
+        }
     }
 
     winloss: func {
