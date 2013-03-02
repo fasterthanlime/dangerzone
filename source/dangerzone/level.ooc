@@ -108,8 +108,9 @@ Level: class {
                     ballPos := vec2(ball body getPos())
                     dist := pos dist(ballPos)
                     if (dist < ball radius) {
-                        logger info("Touching a ball!")
-                        ball makeSpiky()
+                        if (def spiky) {
+                            ball makeSpiky()
+                        }
                         touched = true
                         break
                     }

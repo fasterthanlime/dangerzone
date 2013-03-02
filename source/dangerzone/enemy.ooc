@@ -48,7 +48,7 @@ Enemy: class extends Entity {
         // try to attain constant velocity
         vel := vec2(body getVel())
         currentSpeed := vel norm()
-        newNorm := currentSpeed * 0.9 + speed * 0.1
+        newNorm := currentSpeed * 0.95 + speed * 0.05
         body setVel(cpv(vel normalized() mul(newNorm)))
     
         stayInTerrain()

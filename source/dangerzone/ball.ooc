@@ -22,7 +22,7 @@ import dangerzone/[level, leveldef]
 SpikeRel: class {
     point: Vec2
     other: Ball
-    constraint: CpPinJoint
+    constraint, constraint2: CpPinJoint
 
     init: func (=other, =point) {
     }
@@ -45,7 +45,7 @@ Ball: class extends Entity {
 
     spriteSide := 512.0
 
-    mass := 5.0
+    mass := 2.0
 
     snapped := true
     dead := false
@@ -101,10 +101,19 @@ Ball: class extends Entity {
             newSpikers = false
 
             for (rel in spikers) if (!rel constraint) {
-                point := cpv(rel point)
-                rel constraint = CpPinJoint new(rel other body, body, point, point)
+                pinJoint := CpPinJoint new(rel other body, body, rel other body getPos(), body getPos())
+                rel constraint = pinJoint
+
                 level space addConstraint(rel constraint)
-                logger info("Added point constraint!")
+            
+                // TODO: that's experimental, man
+                point := cpv(rel point)
+                pinJoint2 := CpPinJoint new(rel other body, body, point, point)
+                level space addConstraint(pinJoint2)
+
+                rel constraint2 = pinJoint2
+
+                logger info("Added point constraint! dist = %.2f", pinJoint getDist())
             }
         }
 
@@ -136,9 +145,9 @@ Ball: class extends Entity {
             }
         }
 
-        targetBrightness := 65.0
-        if (invulnerable) {
-            targetBrightness = 255.0
+        targetBrightness := 255.0
+        if (level def fragile && !invulnerable) {
+            targetBrightness = 65.0
         }
 
         {
@@ -187,7 +196,11 @@ Ball: class extends Entity {
         }
 
         // local gravity
-        body setForce(cpv(0, -8000))
+        if (green) {
+            body setForce(cpv(0, -2000))
+        } else {
+            body setForce(cpv(0, -4000))
+        }
 
         scale := diameter * (1.0 / spriteSide as Float)
         sprite scale set!(scale, scale)
@@ -211,13 +224,14 @@ Ball: class extends Entity {
         level group remove(group)
         for (rel in spikers) {
             level space removeConstraint(rel constraint)
+            level space removeConstraint(rel constraint2)
         }
         level space removeShape(shape)
         level space removeBody(body)
     }
 
     initPhysx: func {
-        moment := cpMomentForCircle(mass, 0, radius, cpv(radius, radius))
+        moment := getMoment()
 
         body = CpBody new(mass, moment)
         body setPos(cpv(pos))
@@ -242,7 +256,11 @@ Ball: class extends Entity {
         }
     }
     
-    updateShape: func {
+    updateShape: func (force := false) {
+        if ((!spikers empty?() || spiky) && !force) {
+            return
+        }
+
         moment := getMoment()
         body setMoment(moment)
 
@@ -286,7 +304,7 @@ Ball: class extends Entity {
         if (invulnerable && !spiky) {
             level balls -= 1
             spiky = true
-            updateShape() // so we re-have collisions
+            updateShape(true) // so we re-have collisions
 
             spikeSprite = GlSprite new("assets/png/ball-spiky.png")
             group add(spikeSprite)
@@ -311,7 +329,7 @@ SelfHandler: class extends CpCollisionHandler {
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
         arbiter setElasticity(0.05) 
-        arbiter setFriction(0.7)
+        arbiter setFriction(0.9)
 
         true
     }
@@ -377,8 +395,8 @@ BallWallsHandler: class extends CpCollisionHandler {
     }
 
     preSolve: func (arbiter: CpArbiter, space: CpSpace) -> Bool {
-        arbiter setElasticity(0.05) 
-        arbiter setFriction(0.7)
+        arbiter setElasticity(0.0) 
+        arbiter setFriction(0.2)
 
         true
     }

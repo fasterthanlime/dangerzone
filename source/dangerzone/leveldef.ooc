@@ -12,7 +12,9 @@ LevelDef: class {
 
     bordersHurt := false
     selfHurt := false
+
     fragile := false
+    spiky := false
 
     message: String
 
@@ -24,7 +26,9 @@ LevelDef: class {
 
         bordersHurt = daddy bordersHurt
         selfHurt = daddy selfHurt
+
         fragile = daddy fragile
+        spiky = daddy spiky
     }
 
     getList: static func -> List<This> {
@@ -146,7 +150,7 @@ LevelDef: class {
         }
 
         {
-            def := This new(defs last(), "NEW RULE | Life is fragile")
+            def := This new(defs last(), "NEW RULE | Life is fragile | Friends matter")
             def fragile = true
             def numBalls = 40
             def numEnemies = 1
@@ -160,34 +164,36 @@ LevelDef: class {
         }
 
         {
-            def := This new(defs last(), "Friends make life brighter")
+            def := This new(defs last(), "What we need is a hero")
             def numEnemies = 3
             defs add(def)
         }
 
         {
-            def := This new(defs last(), "RULE RESET | %s bright balls." format(click))
+            def := This new(defs last(), "EVOLUTION | %s to make the brightest heroes" format(click))
             def bordersHurt = false
             def selfHurt = false
+            def spiky = true
+
             def numBalls = 40
             def numEnemies = 4
             defs add(def)
         }
 
         {
-            def := This new(defs last(), "Five" format(click))
+            def := This new(defs last(), "Building up" format(click))
             def numEnemies = 5
             defs add(def)
         }
 
         {
-            def := This new(defs last(), "Six" format(click))
+            def := This new(defs last(), "Capture used to be easier" format(click))
             def numEnemies = 6
             defs add(def)
         }
 
         {
-            def := This new(defs last(), "Seven" format(click))
+            def := This new(defs last(), "Almost there" format(click))
             def numEnemies = 7
             defs add(def)
         }
