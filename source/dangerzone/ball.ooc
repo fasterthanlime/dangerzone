@@ -101,14 +101,22 @@ Ball: class extends Entity {
             newSpikers = false
 
             for (rel in spikers) if (!rel constraint) {
-                pinJoint := CpPinJoint new(rel other body, body, rel other body getPos(), body getPos())
+                pinJoint := CpPinJoint new(body, rel other body, rel other body getPos(), body getPos())
                 rel constraint = pinJoint
-
                 level space addConstraint(rel constraint)
             
                 // TODO: that's experimental, man
-                point := cpv(rel point)
-                pinJoint2 := CpPinJoint new(rel other body, body, point, point)
+                pos1 := vec2(body getPos())
+                pos2 := vec2(rel other body getPos())
+
+                diff := pos2 sub(pos1) normalized()
+
+                point1 := pos1 add(diff mul(radius))
+                point2 := pos2 sub(diff mul(rel other radius))
+
+                logger info("point1 = %s, point2 = %s, dist = %.2f", point1 _, point2 _, point2 dist(point1))
+                pinJoint2 := CpPinJoint new(body, rel other body, cpv(point1), cpv(point2))
+                //pinJoint2 setDist(0.0)
                 level space addConstraint(pinJoint2)
 
                 rel constraint2 = pinJoint2
@@ -363,7 +371,6 @@ SelfHandler: class extends CpCollisionHandler {
             }
 
             if (!ball2 spikedBy?(ball1)) {
-
                 set := arbiter getContactPointSet()
                 contactPos := vec2(set points[0] point)
 
@@ -371,7 +378,7 @@ SelfHandler: class extends CpCollisionHandler {
                 ball2 spikers put(rel other, rel)
                 ball2 newSpikers = true
 
-                Ball logger info("spiky collision going on at %s, delta = %d", contactPos _, delta)
+                Ball logger info("spiky hug going on at %s, dist %.2f", contactPos _, set points[0] dist)
             }
         }
     }
